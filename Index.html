@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SSC CGL Speed Math Trainer</title>
+<meta name="theme-color" content="#0f172a" />
+<link id="app-manifest" rel="manifest" href="">
+<style>
+  :root {
+    --bg:#0f172a; --panel:#111827; --card:#0b1220; --accent:#22c55e; --accent2:#38bdf8;
+    --text:#e5e7eb; --muted:#9ca3af; --danger:#ef4444; --warn:#f59e0b;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: linear-gradient(135deg,#0b1220,#0f172a); color:var(--text); }
+  header { padding:16px 20px; border-bottom:1px solid #1f2937; background:rgba(0,0,0,.25); position:sticky; top:0; z-index:5; backdrop-filter: blur(6px); }
+  header h1 { margin:0; font-size:18px; display:flex; align-items:center; gap:10px; }
+  .badge { font-size:12px; background: #111827; color: var(--muted); padding:2px 8px; border-radius:14px; border:1px solid #1f2937; }
+  nav { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+  .tab { padding:8px 12px; border:1px solid #243041; background:#0b1120; color:var(--text); border-radius:8px; cursor:pointer; }
+  .tab.active { background:linear-gradient(135deg,#0b1120,#0e1a2b); border-color:#2b3b52; box-shadow: inset 0 0 0 1px #2b3b52; }
+  main { padding:18px 20px; max-width:1100px; margin:0 auto; }
+  .grid { display:grid; grid-template-columns: 320px 1fr; gap:16px; align-items:start; }
+  .panel { background: linear-gradient(145deg,#0b1120,#0c1424); border:1px solid #1f2a3b; border-radius:12px; padding:16px; }
+  h2 { margin:0 0 12px 0; font-size:18px; }
+  h3 { margin:14px 0 8px 0; font-size:16px; color: var(--muted); }
+  .row { display:flex; gap:8px; flex-wrap:wrap; }
+  .chip { padding:8px 10px; border:1px solid #2a3950; border-radius:8px; background:#0a1221; cursor:pointer; user-select:none; }
+  .chip input { margin-right:6px; }
+  .select, .input, .btn { width:100%; padding:10px 12px; border-radius:10px; border:1px solid #273447; background:#0b1220; color:var(--text); }
+  .btn { cursor:pointer; text-align:center; border:1px solid #2a3b52; background: linear-gradient(135deg,#0c1424,#0e1a2b); }
+  .btn.primary { background: linear-gradient(135deg,#0e2a1a,#0a1e13); border-color:#1a3b2a; }
+  .btn.warn { background: linear-gradient(135deg,#2a1f0e,#1e150a); border-color:#3b2a1a; }
+  .btn.danger { background: linear-gradient(135deg,#2a0e0e,#1e0a0a); border-color:#3b1a1a; }
+  .btn:disabled { opacity:.5; cursor:not-allowed; }
+  .status { display:flex; gap:8px; flex-wrap:wrap; }
+  .stat { background:#0a1221; border:1px solid #243041; padding:8px 10px; border-radius:10px; color:var(--muted); }
+  .big { font-size:42px; letter-spacing:1px; }
+  .question { font-variant-numeric: tabular-nums; }
+  .qbox { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .input-inline { display:flex; gap:8px; align-items:stretch; }
+  .timer-wrap { height:10px; background:#121a2a; border:1px solid #21314a; border-radius:999px; overflow:hidden; }
+  .timer-bar { height:100%; width:100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .2s linear; }
+  .muted { color: var(--muted); }
+  .good { color: var(--accent); }
+  .bad { color: var(--danger); }
+  .warn-txt { color: var(--warn); }
+  .cards { display:grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap:10px; }
+  .card { padding:10px; border:1px solid #243041; background:#0b1220; border-radius:8px; text-align:center; }
+  .flex { display:flex; gap:10px; align-items:center; }
+  .space { height:10px; }
+  .hidden { display:none !important; }
+  .hr { height:1px; background:#1f2a3b; margin:10px 0; }
+  .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; background:#0f172a; border:1px solid #243041; padding:1px 6px; border-radius:6px; color: #c9d1d9; }
+  footer { padding:14px 20px; color:var(--muted); text-align:center; border-top:1px solid #1f2937; margin-top:16px; }
+  .review-list { display:grid; grid-template-columns: 1fr auto auto; gap:6px; align-items:center; }
+  .pill { padding:2px 8px; border-radius:999px; border:1px solid #243041; background:#0b1220; font-size:12px; }
+  .tag { padding:2px 8px; border-radius:6px; background:#10233a; border:1px solid #1f344f; color:#9cc3ff; font-size:12px; }
+  .note { font-size:12px; color: var(--muted); }
+  .install-btn { position: fixed; right: 16px; bottom: 16px; z-index: 50; width:auto; }
+</style>
+</head>
+<body>
+<header>
+  <h1>
+    SSC CGL Speed Math Trainer
+    <span class="badge">Practice + Exam + Learn</span>
+  </h1>
+  <nav>
+    <button class="tab active" data-tab="practice">Practice</button>
+    <button class="tab" data-tab="exam">Exam</button>
+    <button class="tab" data-tab="learn">Learn</button>
+    <button class="tab" data-tab="stats">Stats</button>
+    <span class="badge">Shortcuts: <span class="kbd">Enter</span> submit, <span class="kbd">N</span> next/skip</span>
+  </nav>
+</header>
+
+<main>
+  <!-- PRACTICE -->
+  <section id="practice" class="grid">
+    <div class="panel">
+      <h2>Practice Settings</h2>
+      <h3>Operations</h3>
+      <div class="row" id="ops">
+        <label class="chip"><input type="checkbox" value="add" checked />Addition (+)</label>
+        <label class="chip"><input type="checkbox" value="sub" checked />Subtraction (−)</label>
+        <label class="chip"><input type="checkbox" value="mul" checked />Multiplication (×)</label>
+        <label class="chip"><input type="checkbox" value="div" checked />Division (÷)</label>
+      </div>
+
+      <h3>Digits</h3>
+      <select id="digits" class="select">
+        <option value="2">2-digit</option>
+        <option value="3">3-digit</option>
+        <option value="4">4-digit</option>
+        <option value="5">5-digit</option>
+        <option value="mix" selected>Mixed (2–5)</option>
+      </select>
+
+      <h3>Per-question timer</h3>
+      <select id="perQ" class="select">
+        <option value="3">3 sec (blitz)</option>
+        <option value="5" selected>5 sec</option>
+        <option value="7">7 sec</option>
+        <option value="10">10 sec</option>
+        <option value="0">No limit</option>
+      </select>
+
+      <div class="hr"></div>
+      <div class="row">
+        <button id="startPractice" class="btn primary">Start</button>
+        <button id="resetPractice" class="btn">Reset</button>
+      </div>
+      <p class="note">Tip: Toggle ops quickly with keys 1:+, 2:−, 3:×, 4:÷</p>
+
+      <div class="hr"></div>
+      <h3>Quick Mental Tips</h3>
+      <ul class="note" style="margin:0 0 0 18px">
+        <li>Add/Sub: Round-and-correct (e.g., +198 = +200 − 2)</li>
+        <li>Multiply: Break into parts (e.g., 47×26 = 47×20 + 47×6)</li>
+        <li>Division: Use factor pairs; ensure clean divisors in this trainer</li>
+      </ul>
+    </div>
+
+    <div class="panel">
+      <div class="qbox">
+        <div>
+          <div class="muted">Question</div>
+          <div id="question" class="big question">Press Start</div>
+        </div>
+        <div style="text-align:right">
+          <div class="muted">Per-Question Timer</div>
+          <div class="timer-wrap" style="width:260px"><div id="timerBar" class="timer-bar" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <div class="space"></div>
+      <div class="input-inline">
+        <input id="answer" class="input" placeholder="Type answer…" inputmode="numeric" />
+        <button id="submitAns" class="btn">Submit</button>
+        <button id="nextQ" class="btn warn">Skip</button>
+      </div>
+
+      <div class="space"></div>
+      <div id="feedback" class="muted">—</div>
+
+      <div class="space"></div>
+      <div class="status">
+        <div class="stat">Attempted: <b id="p_attempt">0</b></div>
+        <div class="stat">Correct: <b id="p_correct">0</b></div>
+        <div class="stat">Accuracy: <b id="p_acc">0%</b></div>
+        <div class="stat">Streak: <b id="p_streak">0</b></div>
+        <div class="stat">Avg Time: <b id="p_avg">0.0s</b></div>
+        <div class="stat">Best Streak: <b id="p_best">0</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXAM -->
+  <section id="exam" class="grid hidden">
+    <div class="panel">
+      <h2>Exam Setup</h2>
+      <h3>Preset</h3>
+      <select id="examPreset" class="select">
+        <option value="quick">Quick Drill (20 Q, 2 min)</option>
+        <option value="ssc">SSC-style (50 Q, 8 min)</option>
+        <option value="endurance">Endurance (100 Q, 15 min)</option>
+        <option value="custom" selected>Custom</option>
+      </select>
+
+      <div id="customExam">
+        <h3>Custom Config</h3>
+        <div class="row">
+          <input id="exQ" class="input" type="number" min="5" max="300" value="30" />
+          <input id="exMin" class="input" type="number" min="1" max="60" value="5" />
+        </div>
+        <div class="note">Questions, Minutes</div>
+        <div class="hr"></div>
+        <h3>Operations</h3>
+        <div class="row" id="exOps">
+          <label class="chip"><input type="checkbox" value="add" checked />+</label>
+          <label class="chip"><input type="checkbox" value="sub" checked />−</label>
+          <label class="chip"><input type="checkbox" value="mul" checked />×</label>
+          <label class="chip"><input type="checkbox" value="div" checked />÷</label>
+        </div>
+        <h3>Digits</h3>
+        <select id="exDigits" class="select">
+          <option value="2">2-digit</option>
+          <option value="3" selected>3-digit</option>
+          <option value="4">4-digit</option>
+          <option value="mix">Mixed (2–4)</option>
+        </select>
+      </div>
+
+      <div class="hr"></div>
+      <div class="row">
+        <button id="startExam" class="btn primary">Start Exam</button>
+        <button id="cancelExam" class="btn">Cancel/Reset</button>
+      </div>
+      <p class="note">Exam mode uses a global timer (no per-question limit).</p>
+    </div>
+
+    <div class="panel">
+      <div class="qbox">
+        <div>
+          <div class="muted">Question <span id="ex_idx">0</span>/<span id="ex_total">0</span></div>
+          <div id="ex_question" class="big question">Configure and Start</div>
+        </div>
+        <div style="text-align:right">
+          <div class="muted">Exam Time Left</div>
+          <div class="timer-wrap" style="width:260px"><div id="examBar" class="timer-bar" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <div class="space"></div>
+      <div class="input-inline">
+        <input id="ex_answer" class="input" placeholder="Type answer…" inputmode="numeric" />
+        <button id="ex_submit" class="btn">Submit</button>
+        <button id="ex_skip" class="btn warn">Skip</button>
+        <button id="ex_finish" class="btn danger">Finish</button>
+      </div>
+
+      <div class="space"></div>
+      <div class="status">
+        <div class="stat">Correct: <b id="ex_correct">0</b></div>
+        <div class="stat">Accuracy: <b id="ex_acc">0%</b></div>
+        <div class="stat">Avg Time/Q: <b id="ex_avg">0.0s</b></div>
+      </div>
+
+      <div id="examSummary" class="panel hidden" style="margin-top:12px">
+        <h3>Exam Summary</h3>
+        <div class="status">
+          <div class="stat">Score: <b id="sum_score">0</b></div>
+          <div class="stat">Attempted: <b id="sum_attempted">0</b></div>
+          <div class="stat">Correct: <b id="sum_correct">0</b></div>
+          <div class="stat">Accuracy: <b id="sum_accuracy">0%</b></div>
+          <div class="stat">Time Used: <b id="sum_time">0s</b></div>
+        </div>
+        <div class="hr"></div>
+        <h3>Review</h3>
+        <div id="review" class="review-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEARN -->
+  <section id="learn" class="grid hidden">
+    <div class="panel">
+      <h2>Learn: Squares & Cubes</h2>
+      <h3>Tables</h3>
+      <div class="row">
+        <button id="showSquares" class="btn">Squares 1–50</button>
+        <button id="showCubes" class="btn">Cubes 1–20</button>
+      </div>
+      <div class="hr"></div>
+      <h3>Flashcards</h3>
+      <div class="row">
+        <select id="fcMode" class="select">
+          <option value="sq" selected>Squares</option>
+          <option value="cu">Cubes</option>
+        </select>
+        <button id="fcNext" class="btn">New Card</button>
+      </div>
+      <div class="space"></div>
+      <div class="panel">
+        <div class="muted">Prompt</div>
+        <div id="fcPrompt" class="big">Press New Card</div>
+        <div class="space"></div>
+        <div class="row">
+          <input id="fcAns" class="input" placeholder="Type answer…" inputmode="numeric" />
+          <button id="fcCheck" class="btn">Check</button>
+          <button id="fcReveal" class="btn warn">Reveal</button>
+        </div>
+        <div class="space"></div>
+        <div id="fcFeedback" class="muted">—</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div id="tableArea" class="cards"></div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section id="stats" class="grid hidden">
+    <div class="panel">
+      <h2>Progress & Records</h2>
+      <div class="status">
+        <div class="stat">Practice Best Streak: <b id="st_best_streak">0</b></div>
+        <div class="stat">Practice Best Accuracy: <b id="st_best_acc">0%</b></div>
+        <div class="stat">Fastest Avg/Q (Practice): <b id="st_best_avg">—</b></div>
+      </div>
+      <div class="hr"></div>
+      <h3>Exam Records</h3>
+      <div id="examRecords" class="cards"></div>
+      <div class="hr"></div>
+      <button id="clearData" class="btn danger">Clear All Saved Data</button>
+    </div>
+    <div class="panel">
+      <h3>How to Use for 5s Mastery</h3>
+      <ul class="note" style="margin:0 0 0 18px">
+        <li>Start at 2-digit with 7–10s timer; aim for 95%+ accuracy.</li>
+        <li>Reduce timer to 5s; then increase digits to 3 and 4.</li>
+        <li>Mix ops when comfortable; keep average time under target.</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer>
+  Built for fast, focused arithmetic training. All data saved locally in the browser (no network required).
+</footer>
+
+<button id="installBtn" class="btn primary install-btn hidden">Install app</button>
+
+<script>
+/* ========== Utility ========== */
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+const clamp = (v,min,max)=>Math.max(min,Math.min(max,v));
+function randInt(min, max) { return Math.floor(Math.random()*(max-min+1))+min; } // inclusive
+function randDigits(d) { if (d <= 1) return randInt(0,9); const lo = 10**(d-1); const hi = (10**d)-1; return randInt(lo, hi); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function now(){ return performance.now(); }
+
+/* ========== Local storage ========== */
+const LS = {
+  get(k, def=null){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):def; }catch{ return def; } },
+  set(k, v){ localStorage.setItem(k, JSON.stringify(v)); },
+  del(k){ localStorage.removeItem(k); }
+};
+
+/* ========== Tabs ========== */
+const tabs = $$('.tab');
+tabs.forEach(t=>t.onclick = () => {
+  tabs.forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  ['practice','exam','learn','stats'].forEach(id => $('#'+id).classList.add('hidden'));
+  $('#'+t.dataset.tab).classList.remove('hidden');
+  refreshStats();
+});
+
+/* ========== Practice state ========== */
+let pState = {
+  running:false, ops:new Set(['add','sub','mul','div']),
+  digits:'mix', perQ:5,
+  current:null, startT:0, timer:null, timerEnd:0,
+  attempted:0, correct:0, streak:0, bestStreak: LS.get('bestStreak',0),
+  timeSum:0, avg:0
+};
+
+function readPracticeControls(){
+  pState.ops = new Set($$('#ops input:checked').map(x=>x.value));
+  pState.digits = $('#digits').value;
+  pState.perQ = parseInt($('#perQ').value, 10);
+}
+function randomDigitsChoice(sel){ if (sel==='mix') return pick([2,3,4,5]); return parseInt(sel,10); }
+
+/* Problem generation */
+function genProblem(opsSet, digitsSel){
+  const op = pick([...opsSet]);
+  const d = randomDigitsChoice(digitsSel);
+  let a,b,expr,ans, symbol;
+  if (op==='add'){
+    a = randDigits(d); b = randDigits(d);
+    ans = a+b; symbol = '+';
+  } else if (op==='sub'){
+    a = randDigits(d); b = randDigits(d);
+    if (b>a) [a,b]=[b,a]; // non-negative
+    ans = a-b; symbol = '−';
+  } else if (op==='mul'){
+    a = randDigits(d); b = randDigits(d);
+    ans = a*b; symbol = '×';
+  } else { // div
+    // make clean division
+    const divisor = randDigits(Math.max(1, Math.min(3, d))); // keep divisor reasonable
+    const quotient = randDigits(Math.max(1, Math.min(d, 3)));
+    a = divisor * quotient;
+    b = divisor;
+    ans = quotient;
+    symbol = '÷';
+  }
+  expr = `${a} ${symbol} ${b}`;
+  return {a,b,op,symbol,expr,ans, d};
+}
+
+function setQuestion(q){
+  pState.current = q;
+  $('#question').textContent = q.expr;
+  $('#answer').value = '';
+  $('#feedback').textContent = '—';
+  $('#answer').focus();
+  if (pState.perQ>0){
+    startPerQTimer(pState.perQ);
+  } else {
+    stopPerQTimer();
+    $('#timerBar').style.width = '100%';
+  }
+}
+
+function startPerQTimer(seconds){
+  stopPerQTimer();
+  const start = now();
+  const dur = seconds*1000;
+  pState.startT = start;
+  pState.timerEnd = start + dur;
+  const tick = () => {
+    const t = now();
+    const left = pState.timerEnd - t;
+    const pct = clamp((left/dur)*100, 0, 100);
+    $('#timerBar').style.width = pct + '%';
+    if (left <= 0){
+      $('#timerBar').style.width = '0%';
+      handlePracticeSubmit(true); // timeout
+    } else {
+      pState.timer = requestAnimationFrame(tick);
+    }
+  };
+  pState.timer = requestAnimationFrame(tick);
+}
+function stopPerQTimer(){ if (pState.timer){ cancelAnimationFrame(pState.timer); pState.timer=null; } }
+
+/* Practice flow */
+function practiceStart(){
+  readPracticeControls();
+  if (pState.ops.size===0){ alert('Select at least one operation'); return; }
+  pState.running = true;
+  pState.attempted = 0; pState.correct=0; pState.streak=0; pState.timeSum=0; pState.avg=0;
+  updatePracticeStats();
+  setQuestion(genProblem(pState.ops, pState.digits));
+}
+function practiceReset(){
+  pState.running=false; stopPerQTimer();
+  $('#question').textContent='Press Start';
+  $('#timerBar').style.width='0%';
+  $('#answer').value='';
+  $('#feedback').textContent='—';
+  pState.attempted = pState.correct = pState.streak = 0;
+  pState.avg=0; pState.timeSum=0;
+  updatePracticeStats();
+}
+
+function updatePracticeStats(){
+  $('#p_attempt').textContent = pState.attempted;
+  $('#p_correct').textContent = pState.correct;
+  const acc = pState.attempted? Math.round((pState.correct/pState.attempted)*100):0;
+  $('#p_acc').textContent = acc+'%';
+  $('#p_streak').textContent = pState.streak;
+  $('#p_best').textContent = pState.bestStreak;
+  $('#p_avg').textContent = (pState.attempted? (pState.timeSum/pState.attempted/1000).toFixed(1):'0.0')+'s';
+  const bestAcc = LS.get('bestAcc', 0);
+  const currAcc = acc;
+  if (pState.streak > pState.bestStreak){ pState.bestStreak = pState.streak; LS.set('bestStreak', pState.bestStreak); }
+  if (currAcc > bestAcc){ LS.set('bestAcc', currAcc); }
+  const bestAvg = LS.get('bestAvg', null);
+  const currAvg = pState.attempted? (pState.timeSum/pState.attempted/1000):null;
+  if (currAvg && (!bestAvg || currAvg < bestAvg)){ LS.set('bestAvg', currAvg); }
+}
+
+function handlePracticeSubmit(timeout=false){
+  if (!pState.running || !pState.current) return;
+  stopPerQTimer();
+  const tNow = now();
+  const elapsed = Math.max(0, tNow - pState.startT);
+  const expected = pState.current.ans;
+  const given = timeout ? null : parseInt($('#answer').value.trim(), 10);
+  const correct = (!timeout && given===expected);
+  pState.attempted++;
+  pState.timeSum += elapsed;
+
+  if (correct){
+    pState.correct++; pState.streak++;
+    $('#feedback').innerHTML = `<span class="good">Correct</span> in ${(elapsed/1000).toFixed(1)}s`;
+  } else {
+    pState.streak 
